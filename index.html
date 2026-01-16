@@ -65,30 +65,30 @@
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .masonry-grid {
+        .vibe-grid {
             max-width: 1400px;
             margin: 0 auto;
         }
 
         /* Grid sizer for responsive column width */
         .grid-sizer,
-        .masonry-item {
+        .vibe-item {
             width: calc(25% - 12px);
         }
 
-        .masonry-item {
+        .vibe-item {
             margin-bottom: 15px;
             overflow: hidden;
             transition: none !important;
         }
 
-        .masonry-item img {
+        .vibe-item img {
             width: 100%;
             display: block;
         }
 
         /* Disable all Masonry transitions */
-        .masonry-grid .masonry-item {
+        .vibe-grid .vibe-item {
             transition: none !important;
         }
 
@@ -103,21 +103,21 @@
         /* Responsive columns */
         @media (max-width: 1200px) {
             .grid-sizer,
-            .masonry-item {
+            .vibe-item {
                 width: calc(33.333% - 10px);
             }
         }
 
         @media (max-width: 768px) {
             .grid-sizer,
-            .masonry-item {
+            .vibe-item {
                 width: calc(50% - 8px);
             }
         }
 
         @media (max-width: 480px) {
             .grid-sizer,
-            .masonry-item {
+            .vibe-item {
                 width: 100%;
             }
         }
@@ -147,162 +147,118 @@
             margin: 0 10px;
         }
 
-        /* Square Grid Layout - CSS only */
-        #squareGrid {
+        /* Insta Grid Layout - CSS only */
+        #instaGrid {
             max-width: 1400px;
             margin: 0 auto;
             display: none;
         }
 
-        .square-grid {
+        .insta-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             align-items: start;
         }
 
-        .square-item {
+        .insta-item {
             background: #222;
+            display: flex;
+            flex-direction: column;
+            aspect-ratio: 1 / 1;
         }
 
-        .square-item .image-wrapper {
+        .insta-item .image-wrapper {
             position: relative;
             width: 100%;
-            aspect-ratio: 1 / 1;
+            flex: 1;
+            min-height: 0;
             overflow: hidden;
         }
 
-        .square-item img {
+        .insta-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        /* Responsive square grid */
+        .insta-item .caption {
+            flex-shrink: 0;
+        }
+
+        /* Responsive insta grid */
         @media (max-width: 1200px) {
-            .square-grid {
+            .insta-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
         }
 
         @media (max-width: 768px) {
-            .square-grid {
+            .insta-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media (max-width: 480px) {
-            .square-grid {
+            .insta-grid {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* Fixed Grid Layout - square cells with contained images */
-        #fixedGrid {
+        /* Big Layout - single column, full width */
+        #bigGrid {
             max-width: 1400px;
             margin: 0 auto;
             display: none;
         }
 
-        .fixed-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            align-items: start;
-        }
-
-        .fixed-item {
-            background: #000;
-        }
-
-        .fixed-item .image-wrapper {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .fixed-item img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        /* Responsive fixed grid */
-        @media (max-width: 1200px) {
-            .fixed-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .fixed-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .fixed-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Overflow-height Layout - single column, full width */
-        #overflowheightGrid {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: none;
-        }
-
-        .overflowheight-grid {
+        .big-grid {
             display: flex;
             flex-direction: column;
             gap: 15px;
         }
 
-        .overflowheight-item img {
+        .big-item img {
             width: 100%;
             height: auto;
             display: block;
         }
 
-        /* Fit-screen Layout - single column, max viewport height */
-        #fitscreenGrid {
+        /* Fit Layout - single column, max viewport height */
+        #fitGrid {
             max-width: 1400px;
             margin: 0 auto;
             display: none;
         }
 
-        .fitscreen-grid {
+        .fit-grid {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: var(--fitscreen-gap, 15px);
+            gap: var(--fit-gap, 15px);
         }
 
-        .fitscreen-item {
+        .fit-item {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        .fitscreen-item img {
+        .fit-item img {
             max-width: 100%;
-            max-height: var(--fitscreen-img-height, calc(100vh - 60px));
+            max-height: var(--fit-img-height, calc(100vh - 60px));
             object-fit: contain;
         }
 
-        /* Flickr Grid Layout - uses justified-layout algorithm */
-        #flickrGrid {
+        /* Arc Grid Layout - uses justified-layout algorithm */
+        #arcGrid {
             max-width: 1400px;
             margin: 0 auto;
             display: none;
             position: relative;
         }
 
-        .flickr-item {
+        .arc-item {
             position: absolute;
             left: 0;
             top: 0;
@@ -310,12 +266,12 @@
             overflow: hidden;
         }
 
-        .flickr-item .image-wrapper {
+        .arc-item .image-wrapper {
             width: 100%;
             overflow: hidden;
         }
 
-        .flickr-item img {
+        .arc-item img {
             width: 100%;
             height: 100%;
             display: block;
@@ -332,20 +288,31 @@
             text-align: center;
         }
 
-        /* Masonry items */
-        .masonry-item {
+        /* Vibe items */
+        .vibe-item {
             background: #222;
             overflow: hidden;
         }
 
-        .masonry-item img {
+        .vibe-item img {
             display: block;
         }
 
-        /* Overflow/Fitscreen items */
-        .overflowheight-item,
-        .fitscreen-item {
+        /* Big/Fit items */
+        .big-item,
+        .fit-item {
             background: #222;
+        }
+
+        /* Hidden container for measuring caption heights */
+        .caption-measurer {
+            position: absolute;
+            visibility: hidden;
+            pointer-events: none;
+            /* Match caption styling exactly */
+            padding: 8px 12px;
+            font-size: 14px;
+            line-height: 1.3;
         }
     </style>
 </head>
@@ -363,57 +330,59 @@
         <div class="divider"></div>
         <div class="control-group">
             <span class="control-label">Layout:</span>
-            <button class="btn active" id="btnMasonry" onclick="switchLayout('masonry')">Masonry</button>
-            <button class="btn" id="btnFlickrGrid" onclick="switchLayout('flickrgrid')">Flickr</button>
-            <button class="btn" id="btnSquare" onclick="switchLayout('square')">Square</button>
-            <button class="btn" id="btnFixed" onclick="switchLayout('fixed')">Fixed</button>
-            <button class="btn" id="btnFitscreen" onclick="switchLayout('fitscreen')">Fit</button>
-            <button class="btn" id="btnOverflowheight" onclick="switchLayout('overflowheight')">Overflow</button>
+            <button class="btn active" id="btnArc" onclick="switchLayout('arc')">Arc</button>
+            <button class="btn" id="btnVibe" onclick="switchLayout('vibe')">Vibe</button>
+            <button class="btn" id="btnInsta" onclick="switchLayout('insta')">Insta</button>
+            <button class="btn" id="btnFit" onclick="switchLayout('fit')">Fit</button>
+            <button class="btn" id="btnBig" onclick="switchLayout('big')">Big</button>
         </div>
     </div>
 
     <div class="stats" id="stats">40 samples</div>
 
-    <div class="masonry-grid" id="masonryGrid">
+    <div class="vibe-grid" id="vibeGrid">
         <div class="grid-sizer"></div>
     </div>
 
-    <div id="squareGrid">
-        <div class="square-grid"></div>
+    <div id="instaGrid">
+        <div class="insta-grid"></div>
     </div>
 
-    <div id="fixedGrid">
-        <div class="fixed-grid"></div>
+    <div id="arcGrid"></div>
+
+    <div id="bigGrid">
+        <div class="big-grid"></div>
     </div>
 
-    <div id="flickrGrid"></div>
-
-    <div id="overflowheightGrid">
-        <div class="overflowheight-grid"></div>
-    </div>
-
-    <div id="fitscreenGrid">
-        <div class="fitscreen-grid"></div>
+    <div id="fitGrid">
+        <div class="fit-grid"></div>
     </div>
 
     <script>
-        // Static image list from pics/ folder
+        // Static image list from pics/ folder - NYE 2025 party photos
         const picsImages = [
-            'pics/Img00001.jpg', 'pics/Img00002.jpg', 'pics/Img00003.jpg', 'pics/Img00004.jpg',
+            'pics/Img00001.jpg', 'pics/Img00002.jpg', 'pics/Img00003.jpg', 
+            { src: 'pics/Img00004.jpg', caption: "Gleb!!!!"},
             'pics/Img00005.jpg', 'pics/Img00006.jpg', 'pics/Img00007.jpg', 'pics/Img00008.jpg',
-            'pics/Img00009.jpg', 'pics/Img00010.jpg', 'pics/Img00011.jpg', 'pics/Img00012.jpg',
+            'pics/Img00009.jpg', { src: 'pics/Img00010.jpg', caption: 'Victor believes the glitter cannons were a terrible idea' },
+            'pics/Img00011.jpg', 'pics/Img00012.jpg',
             'pics/Img00013.jpg', 'pics/Img00014.jpg', 'pics/Img00015.jpg', 'pics/Img00016.jpg',
-            'pics/Img00017.jpg', 'pics/Img00018.jpg', 'pics/Img00019.jpg', 'pics/Img00020.jpg',
+            'pics/Img00017.jpg', 'pics/Img00018.jpg', 'pics/Img00019.jpg',
+            { src: 'pics/Img00020.jpg', caption: 'Everyone chatting away gleefully' },
             'pics/Img00021.jpg', 'pics/Img00022.jpg', 'pics/Img00023.jpg', 'pics/Img00024.jpg',
             'pics/Img00025.jpg', 'pics/Img00026.jpg', 'pics/Img00027.jpg', 'pics/Img00028.jpg',
-            'pics/Img00029.jpg', 'pics/Img00030.jpg', 'pics/Img00031.jpg', 'pics/Img00032.jpg',
+            'pics/Img00029.jpg', { src: 'pics/Img00030.jpg', caption: 'A rare photo of the photographer!' },
+            'pics/Img00031.jpg', 'pics/Img00032.jpg',
             'pics/Img00033.jpg', 'pics/Img00034.jpg', 'pics/Img00035.jpg', 'pics/Img00036.jpg',
-            'pics/Img00037.jpg', 'pics/Img00038.jpg', 'pics/Img00039.jpg', 'pics/Img00040.jpg',
+            'pics/Img00037.jpg', 'pics/Img00038.jpg', 'pics/Img00039.jpg',
+            { src: 'pics/Img00040.jpg', caption: '2025 resolution: remember where I left my shoes' },
             'pics/Img00041.jpg', 'pics/Img00042.jpg', 'pics/Img00043.jpg', 'pics/Img00044.jpg',
             'pics/Img00045.jpg', 'pics/Img00046.jpg', 'pics/Img00047.jpg', 'pics/Img00048.jpg',
-            'pics/Img00049.jpg', 'pics/Img00050.jpg', 'pics/Img00051.jpg', 'pics/Img00052.jpg',
+            'pics/Img00049.jpg', { src: 'pics/Img00050.jpg', caption: 'Caviar is really the only way I can celebrate new years.' },
+            'pics/Img00051.jpg', 'pics/Img00052.jpg',
             'pics/Img00053.jpg', 'pics/Img00054.jpg', 'pics/Img00055.jpg', 'pics/Img00056.jpg',
-            'pics/Img00057.jpg', 'pics/Img00058.jpg', 'pics/Img00059.jpg', 'pics/Img00060.jpg',
+            'pics/Img00057.jpg', 'pics/Img00058.jpg', 'pics/Img00059.jpg',
+            { src: 'pics/Img00060.jpg', caption: 'Girls and Martinis' },
             'pics/Img00061.jpg', 'pics/Img00062.jpg', 'pics/Img00063.jpg', 'pics/Img00064.jpg',
             'pics/Img00065.jpg', 'pics/Img00066.jpg', 'pics/Img00067.jpg', 'pics/Img00068.jpg'
         ];
@@ -463,46 +432,73 @@
         ];
         
         let currentSet = 'samples';
-        let currentLayout = 'masonry';
+        let currentLayout = 'arc';
         let currentImages = [...samplesImages];
         let msnry = null;
         
-        // Cache for Flickr Grid - stores loaded image data to avoid reloading on resize
-        let flickrGridCache = { images: null, loadedImages: null, elements: null };
+        // Cache for Arc Grid - stores loaded image data to avoid reloading on resize
+        let arcGridCache = { images: null, loadedImages: null, elements: null, captionHeights: null };
+
+        // Minimum width for caption measurement (conservative estimate for narrow portrait images)
+        const CAPTION_MIN_WIDTH = 180;
+        // Buffer added to measured caption height for safety
+        const CAPTION_HEIGHT_BUFFER = 4;
+
+        // Measure caption heights at a minimum width constraint
+        function measureCaptionHeights(loadedImages, minWidth = CAPTION_MIN_WIDTH) {
+            // Create or reuse measuring element
+            let measurer = document.getElementById('captionMeasurer');
+            if (!measurer) {
+                measurer = document.createElement('div');
+                measurer.id = 'captionMeasurer';
+                measurer.className = 'caption-measurer';
+                document.body.appendChild(measurer);
+            }
+            
+            // Set width constraint
+            measurer.style.width = minWidth + 'px';
+            
+            // Measure each caption
+            const heights = loadedImages.map(img => {
+                if (!img.caption) return 0;
+                measurer.textContent = img.caption;
+                return measurer.offsetHeight + CAPTION_HEIGHT_BUFFER;
+            });
+            
+            // Clear measurer
+            measurer.textContent = '';
+            
+            return heights;
+        }
 
         // ============================================================
         // Layout Registry - centralized layout configuration
         // ============================================================
         const layouts = {
-            masonry: {
-                gridId: 'masonryGrid',
-                buttonId: 'btnMasonry',
-                render: renderMasonryContent
+            vibe: {
+                gridId: 'vibeGrid',
+                buttonId: 'btnVibe',
+                render: renderVibeContent
             },
-            square: {
-                gridId: 'squareGrid',
-                buttonId: 'btnSquare',
-                render: renderSquareContent
+            insta: {
+                gridId: 'instaGrid',
+                buttonId: 'btnInsta',
+                render: renderInstaContent
             },
-            fixed: {
-                gridId: 'fixedGrid',
-                buttonId: 'btnFixed',
-                render: renderFixedContent
+            arc: {
+                gridId: 'arcGrid',
+                buttonId: 'btnArc',
+                render: renderArcContent
             },
-            flickrgrid: {
-                gridId: 'flickrGrid',
-                buttonId: 'btnFlickrGrid',
-                render: renderFlickrContent
+            big: {
+                gridId: 'bigGrid',
+                buttonId: 'btnBig',
+                render: renderBigContent
             },
-            overflowheight: {
-                gridId: 'overflowheightGrid',
-                buttonId: 'btnOverflowheight',
-                render: renderOverflowheightContent
-            },
-            fitscreen: {
-                gridId: 'fitscreenGrid',
-                buttonId: 'btnFitscreen',
-                render: renderFitscreenContent
+            fit: {
+                gridId: 'fitGrid',
+                buttonId: 'btnFit',
+                render: renderFitContent
             }
         };
 
@@ -571,8 +567,8 @@
                 document.getElementById('stats').textContent = `${samplesImages.length} samples`;
             }
             
-            // Clear flickr cache when changing image set
-            flickrGridCache = { images: null, loadedImages: null, elements: null };
+            // Clear arc cache when changing image set
+            arcGridCache = { images: null, loadedImages: null, elements: null };
             
             // Re-render with current layout
             renderCurrentLayout();
@@ -589,8 +585,8 @@
         function renderCurrentLayout() {
             const layout = layouts[currentLayout];
             if (layout) {
-                // Teardown masonry before switching (unless we're switching TO masonry)
-                if (currentLayout !== 'masonry') {
+                // Teardown masonry before switching (unless we're switching TO vibe)
+                if (currentLayout !== 'vibe') {
                     teardownMasonry();
                 }
                 showOnly(layout.gridId);
@@ -599,11 +595,11 @@
         }
 
         // ============================================================
-        // Masonry Layout
+        // Vibe Layout (Masonry.js)
         // ============================================================
 
         function initMasonry() {
-            const grid = document.getElementById('masonryGrid');
+            const grid = document.getElementById('vibeGrid');
             
             // Destroy existing instance if it exists
             if (msnry) {
@@ -612,7 +608,7 @@
             
             // Initialize Masonry
             msnry = new Masonry(grid, {
-                itemSelector: '.masonry-item',
+                itemSelector: '.vibe-item',
                 columnWidth: '.grid-sizer',
                 percentPosition: true,
                 gutter: 15,
@@ -627,14 +623,14 @@
             });
         }
 
-        function renderMasonryContent(images) {
-            const grid = document.getElementById('masonryGrid');
+        function renderVibeContent(images) {
+            const grid = document.getElementById('vibeGrid');
             grid.innerHTML = '<div class="grid-sizer"></div>';
             
             images.forEach(item => {
                 const { src, caption } = normalizeItem(item);
                 const itemEl = document.createElement('div');
-                itemEl.className = 'masonry-item';
+                itemEl.className = 'vibe-item';
                 
                 const img = document.createElement('img');
                 img.src = src;
@@ -652,17 +648,17 @@
         }
 
         // ============================================================
-        // Square Grid Layout
+        // Insta Layout
         // ============================================================
         
-        function renderSquareContent(images) {
-            const grid = document.querySelector('#squareGrid .square-grid');
+        function renderInstaContent(images) {
+            const grid = document.querySelector('#instaGrid .insta-grid');
             grid.innerHTML = '';
             
             images.forEach(item => {
                 const { src, caption } = normalizeItem(item);
                 const itemEl = document.createElement('div');
-                itemEl.className = 'square-item';
+                itemEl.className = 'insta-item';
                 
                 const wrapper = document.createElement('div');
                 wrapper.className = 'image-wrapper';
@@ -682,47 +678,17 @@
         }
 
         // ============================================================
-        // Fixed Grid Layout
+        // Big Layout
         // ============================================================
         
-        function renderFixedContent(images) {
-            const grid = document.querySelector('#fixedGrid .fixed-grid');
+        function renderBigContent(images) {
+            const grid = document.querySelector('#bigGrid .big-grid');
             grid.innerHTML = '';
             
             images.forEach(item => {
                 const { src, caption } = normalizeItem(item);
                 const itemEl = document.createElement('div');
-                itemEl.className = 'fixed-item';
-                
-                const wrapper = document.createElement('div');
-                wrapper.className = 'image-wrapper';
-                
-                const img = document.createElement('img');
-                img.src = src;
-                img.alt = src.split('/').pop();
-                
-                wrapper.appendChild(img);
-                itemEl.appendChild(wrapper);
-                
-                const captionEl = createCaptionElement(caption);
-                if (captionEl) itemEl.appendChild(captionEl);
-                
-                grid.appendChild(itemEl);
-            });
-        }
-
-        // ============================================================
-        // Overflow Height Layout
-        // ============================================================
-        
-        function renderOverflowheightContent(images) {
-            const grid = document.querySelector('#overflowheightGrid .overflowheight-grid');
-            grid.innerHTML = '';
-            
-            images.forEach(item => {
-                const { src, caption } = normalizeItem(item);
-                const itemEl = document.createElement('div');
-                itemEl.className = 'overflowheight-item';
+                itemEl.className = 'big-item';
                 
                 const img = document.createElement('img');
                 img.src = src;
@@ -738,11 +704,11 @@
         }
 
         // ============================================================
-        // Fitscreen Layout
+        // Fit Layout
         // ============================================================
 
-        function renderFitscreenContent(images) {
-            const grid = document.querySelector('#fitscreenGrid .fitscreen-grid');
+        function renderFitContent(images) {
+            const grid = document.querySelector('#fitGrid .fit-grid');
             grid.innerHTML = '';
             
             // Calculate available height for image
@@ -753,13 +719,13 @@
             const imageMaxHeight = viewportHeight - gap - captionHeight;
             
             // Set CSS custom properties
-            grid.style.setProperty('--fitscreen-gap', gap + 'px');
-            grid.style.setProperty('--fitscreen-img-height', imageMaxHeight + 'px');
+            grid.style.setProperty('--fit-gap', gap + 'px');
+            grid.style.setProperty('--fit-img-height', imageMaxHeight + 'px');
             
             images.forEach(item => {
                 const { src, caption } = normalizeItem(item);
                 const itemEl = document.createElement('div');
-                itemEl.className = 'fitscreen-item';
+                itemEl.className = 'fit-item';
                 
                 const img = document.createElement('img');
                 img.src = src;
@@ -775,20 +741,20 @@
         }
 
         // ============================================================
-        // Flickr Grid Layout (justified-layout algorithm)
+        // Arc Layout (justified-layout algorithm)
         // ============================================================
 
-        function renderFlickrContent(images) {
-            const container = document.getElementById('flickrGrid');
+        function renderArcContent(images) {
+            const container = document.getElementById('arcGrid');
             
             // Wait for justified-layout module to load if not ready
             const doLayout = () => {
                 // Check if we can use cached data
-                const isSameImages = flickrGridCache.images === images && flickrGridCache.loadedImages;
+                const isSameImages = arcGridCache.images === images && arcGridCache.loadedImages;
                 
                 if (isSameImages) {
                     // Use cached data - just relayout
-                    relayoutFlickrGrid();
+                    relayoutArcGrid();
                     return;
                 }
                 
@@ -807,73 +773,56 @@
                 });
                 
                 Promise.all(imagePromises).then(loadedImages => {
-                    // Cache the loaded image data
-                    flickrGridCache.images = images;
-                    flickrGridCache.loadedImages = loadedImages;
-                    flickrGridCache.elements = [];
+                    // Measure caption heights before layout
+                    const captionHeights = measureCaptionHeights(loadedImages);
+                    
+                    // Cache the loaded image data and measured heights
+                    arcGridCache.images = images;
+                    arcGridCache.loadedImages = loadedImages;
+                    arcGridCache.captionHeights = captionHeights;
+                    arcGridCache.elements = [];
                     
                     // Get container width
                     const containerWidth = container.parentElement.clientWidth > 1400 ? 1400 : container.parentElement.clientWidth - 40;
                     
-                    // Caption height constant (padding + line height + some buffer)
-                    const CAPTION_HEIGHT = 35;
+                    const TARGET_ROW_HEIGHT = 350;
                     
-                    // Prepare aspect ratios for justified-layout
-                    const aspectRatios = loadedImages.map(img => img.width / img.height);
+                    // Calculate aspect ratios for justified-layout
+                    // For captioned images, use modified aspect ratio that accounts for measured caption height
+                    const imageAspectRatios = loadedImages.map(img => img.width / img.height);
+                    const layoutAspectRatios = loadedImages.map((img, i) => {
+                        const ar = imageAspectRatios[i];
+                        const captionH = captionHeights[i];
+                        if (captionH > 0) {
+                            // Card aspect ratio: narrower to fit image + caption in same row height
+                            // card_width / card_height = (img_ar * (h - caption)) / h
+                            return ar * (TARGET_ROW_HEIGHT - captionH) / TARGET_ROW_HEIGHT;
+                        }
+                        return ar;
+                    });
                     
-                    // Run justified-layout algorithm
-                    const geometry = window.justifiedLayout(aspectRatios, {
+                    // Run justified-layout algorithm with modified aspect ratios
+                    const geometry = window.justifiedLayout(layoutAspectRatios, {
                         containerWidth: containerWidth,
-                        targetRowHeight: 230,
+                        targetRowHeight: TARGET_ROW_HEIGHT,
+                        targetRowHeightTolerance: 0.20,
                         boxSpacing: 15
                     });
                     
-                    // Calculate total height accounting for captions
-                    // We need to track row positions and add caption height where needed
-                    let extraHeight = 0;
-                    let currentRowTop = -1;
-                    let rowHasCaption = false;
+                    // Set container height
+                    container.style.height = geometry.containerHeight + 'px';
                     
-                    // First pass: determine which rows have captions and calculate extra height
-                    const rowCaptionOffsets = new Map(); // Maps row top position to extra offset
-                    let cumulativeOffset = 0;
-                    
+                    // Create positioned elements
                     geometry.boxes.forEach((box, index) => {
-                        if (box.top !== currentRowTop) {
-                            // New row - add offset from previous row's caption if any
-                            if (rowHasCaption) {
-                                cumulativeOffset += CAPTION_HEIGHT;
-                            }
-                            currentRowTop = box.top;
-                            rowHasCaption = loadedImages[index].caption ? true : false;
-                            rowCaptionOffsets.set(box.top, cumulativeOffset);
-                        } else {
-                            // Same row - check if this item has caption
-                            if (loadedImages[index].caption) {
-                                rowHasCaption = true;
-                            }
-                        }
-                    });
-                    // Add final row's caption height
-                    if (rowHasCaption) {
-                        cumulativeOffset += CAPTION_HEIGHT;
-                    }
-                    
-                    // Set container height with caption offsets
-                    container.style.height = (geometry.containerHeight + cumulativeOffset) + 'px';
-                    
-                    // Create positioned elements with adjusted positions
-                    geometry.boxes.forEach((box, index) => {
-                        const offset = rowCaptionOffsets.get(box.top) || 0;
                         const item = document.createElement('div');
-                        item.className = 'flickr-item';
-                        item.style.transform = `translate(${box.left}px, ${box.top + offset}px)`;
+                        item.className = 'arc-item';
+                        item.style.transform = `translate(${box.left}px, ${box.top}px)`;
                         item.style.width = box.width + 'px';
+                        item.style.height = box.height + 'px';
                         
-                        // Create image wrapper
                         const wrapper = document.createElement('div');
                         wrapper.className = 'image-wrapper';
-                        wrapper.style.height = box.height + 'px';
+                        // Height will be set after caption is measured at actual width
                         
                         const img = document.createElement('img');
                         img.src = loadedImages[index].src;
@@ -888,8 +837,18 @@
                         
                         container.appendChild(item);
                         
-                        // Cache element reference for fast relayout
-                        flickrGridCache.elements.push(item);
+                        // Cache element reference
+                        arcGridCache.elements.push({ el: item, box });
+                    });
+                    
+                    // After DOM is built, measure actual caption heights and set image wrapper heights
+                    requestAnimationFrame(() => {
+                        arcGridCache.elements.forEach(({ el, box }) => {
+                            const caption = el.querySelector('.caption');
+                            const wrapper = el.querySelector('.image-wrapper');
+                            const actualCaptionHeight = caption ? caption.offsetHeight : 0;
+                            wrapper.style.height = (box.height - actualCaptionHeight) + 'px';
+                        });
                     });
                 });
             };
@@ -901,92 +860,88 @@
             }
         }
         
-        // Fast relayout for Flickr Grid - reuses cached data and DOM elements
-        function relayoutFlickrGrid() {
-            if (!flickrGridCache.loadedImages || !flickrGridCache.elements) return;
+        // Fast relayout for Arc Grid - reuses cached data and DOM elements
+        function relayoutArcGrid() {
+            if (!arcGridCache.loadedImages || !arcGridCache.elements || !arcGridCache.captionHeights) return;
             
-            const container = document.getElementById('flickrGrid');
-            const loadedImages = flickrGridCache.loadedImages;
-            const elements = flickrGridCache.elements;
+            const container = document.getElementById('arcGrid');
+            const loadedImages = arcGridCache.loadedImages;
+            const captionHeights = arcGridCache.captionHeights;
+            const elements = arcGridCache.elements;
             
             // Get current container width
             const containerWidth = container.parentElement.clientWidth > 1400 ? 1400 : container.parentElement.clientWidth - 40;
             
-            // Caption height constant
-            const CAPTION_HEIGHT = 35;
+            const TARGET_ROW_HEIGHT = 350;
             
-            // Prepare aspect ratios
-            const aspectRatios = loadedImages.map(img => img.width / img.height);
+            // Calculate layout aspect ratios using cached caption heights
+            const imageAspectRatios = loadedImages.map(img => img.width / img.height);
+            const layoutAspectRatios = loadedImages.map((img, i) => {
+                const ar = imageAspectRatios[i];
+                const captionH = captionHeights[i];
+                if (captionH > 0) {
+                    return ar * (TARGET_ROW_HEIGHT - captionH) / TARGET_ROW_HEIGHT;
+                }
+                return ar;
+            });
             
             // Recalculate layout
-            const geometry = window.justifiedLayout(aspectRatios, {
+            const geometry = window.justifiedLayout(layoutAspectRatios, {
                 containerWidth: containerWidth,
-                targetRowHeight: 230,
+                targetRowHeight: TARGET_ROW_HEIGHT,
+                targetRowHeightTolerance: 0.20,
                 boxSpacing: 15
             });
             
-            // Calculate row caption offsets (same logic as initial render)
-            let currentRowTop = -1;
-            let rowHasCaption = false;
-            const rowCaptionOffsets = new Map();
-            let cumulativeOffset = 0;
+            // Update container height
+            container.style.height = geometry.containerHeight + 'px';
             
+            // Update element positions and sizes
             geometry.boxes.forEach((box, index) => {
-                if (box.top !== currentRowTop) {
-                    if (rowHasCaption) {
-                        cumulativeOffset += CAPTION_HEIGHT;
-                    }
-                    currentRowTop = box.top;
-                    rowHasCaption = loadedImages[index].caption ? true : false;
-                    rowCaptionOffsets.set(box.top, cumulativeOffset);
-                } else {
-                    if (loadedImages[index].caption) {
-                        rowHasCaption = true;
-                    }
+                const cached = elements[index];
+                if (cached && cached.el) {
+                    const item = cached.el;
+                    // Update cached box for future reference
+                    cached.box = box;
+                    
+                    item.style.transform = `translate(${box.left}px, ${box.top}px)`;
+                    item.style.width = box.width + 'px';
+                    item.style.height = box.height + 'px';
                 }
             });
-            if (rowHasCaption) {
-                cumulativeOffset += CAPTION_HEIGHT;
-            }
             
-            // Update container height
-            container.style.height = (geometry.containerHeight + cumulativeOffset) + 'px';
-            
-            // Update element positions and sizes (no DOM creation)
-            geometry.boxes.forEach((box, index) => {
-                const offset = rowCaptionOffsets.get(box.top) || 0;
-                const item = elements[index];
-                if (item) {
-                    item.style.transform = `translate(${box.left}px, ${box.top + offset}px)`;
-                    item.style.width = box.width + 'px';
-                    // Update wrapper height
-                    const wrapper = item.querySelector('.image-wrapper');
+            // After positions update, measure actual caption heights and set image wrapper heights
+            requestAnimationFrame(() => {
+                elements.forEach(({ el, box }) => {
+                    const caption = el.querySelector('.caption');
+                    const wrapper = el.querySelector('.image-wrapper');
+                    const actualCaptionHeight = caption ? caption.offsetHeight : 0;
                     if (wrapper) {
-                        wrapper.style.height = box.height + 'px';
+                        wrapper.style.height = (box.height - actualCaptionHeight) + 'px';
                     }
-                }
+                });
             });
         }
 
         // Handle window resize
         let resizeTimeout;
         window.addEventListener('resize', function() {
-            if (currentLayout === 'masonry' && msnry) {
+            if (currentLayout === 'vibe' && msnry) {
                 msnry.layout();
-            } else if (currentLayout === 'flickrgrid') {
-                // Debounce resize for flickr grid - use fast relayout
+            } else if (currentLayout === 'arc') {
+                // Debounce resize for arc grid - use fast relayout
                 clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => relayoutFlickrGrid(), 16); // ~60fps
-            } else if (currentLayout === 'fitscreen') {
-                // Recalculate fitscreen image height on resize
+                resizeTimeout = setTimeout(() => relayoutArcGrid(), 16); // ~60fps
+            } else if (currentLayout === 'fit') {
+                // Recalculate fit image height on resize
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(() => {
-                    const grid = document.querySelector('#fitscreenGrid .fitscreen-grid');
+                    const grid = document.querySelector('#fitGrid .fit-grid');
                     if (grid) {
                         const gap = 15;
                         const captionHeight = 36;
                         const imageMaxHeight = window.innerHeight - gap - captionHeight;
-                        grid.style.setProperty('--fitscreen-img-height', imageMaxHeight + 'px');
+                        grid.style.setProperty('--fit-img-height', imageMaxHeight + 'px');
                     }
                 }, 16);
             }
