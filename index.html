@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Masonry Grid</title>
+    <!-- jQuery (required for Justified Gallery) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- Masonry.js -->
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <!-- imagesLoaded - ensures layout after images load -->
+    <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+    <!-- Justified Gallery -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #4a9eff;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #3a8eef;
+        }
+
+        .btn.active {
+            background: #2a7edf;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .masonry-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Grid sizer for responsive column width */
+        .grid-sizer,
+        .masonry-item {
+            width: calc(25% - 12px);
+        }
+
+        .masonry-item {
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: none !important;
+        }
+
+        .masonry-item img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Disable all Masonry transitions */
+        .masonry-grid .masonry-item {
+            transition: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #888;
+            width: 100%;
+        }
+
+        /* Responsive columns */
+        @media (max-width: 1200px) {
+            .grid-sizer,
+            .masonry-item {
+                width: calc(33.333% - 10px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid-sizer,
+            .masonry-item {
+                width: calc(50% - 8px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-sizer,
+            .masonry-item {
+                width: 100%;
+            }
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-label {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .divider {
+            width: 1px;
+            height: 30px;
+            background: #444;
+            margin: 0 10px;
+        }
+
+        /* Justified Gallery container */
+        #justifiedGrid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        #justifiedGrid a {
+            display: inline-block;
+        }
+
+        #justifiedGrid img {
+            display: block;
+        }
+
+        /* Disable Justified Gallery fade animations */
+        .justified-gallery > a,
+        .justified-gallery > div,
+        .justified-gallery > a > img,
+        .justified-gallery > div > img {
+            opacity: 1 !important;
+            transition: none !important;
+            animation: none !important;
+        }
+
+        /* Square Grid Layout - CSS only */
+        #squareGrid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .square-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .square-item {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%; /* 1:1 aspect ratio */
+            overflow: hidden;
+        }
+
+        .square-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Responsive square grid */
+        @media (max-width: 1200px) {
+            .square-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .square-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .square-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📸 Photo Masonry Grid</h1>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <span class="control-label">Images:</span>
+            <button class="btn active" id="btnSamples" onclick="switchToSet('samples')">Samples (40)</button>
+            <button class="btn" id="btnPics" onclick="switchToSet('pics')">Photos (68)</button>
+        </div>
+        <div class="divider"></div>
+        <div class="control-group">
+            <span class="control-label">Layout:</span>
+            <button class="btn active" id="btnMasonry" onclick="switchLayout('masonry')">Masonry</button>
+            <button class="btn" id="btnJustified" onclick="switchLayout('justified')">Justified</button>
+            <button class="btn" id="btnSquare" onclick="switchLayout('square')">Square</button>
+        </div>
+    </div>
+
+    <div class="stats" id="stats">40 samples</div>
+
+    <div class="masonry-grid" id="masonryGrid">
+        <div class="grid-sizer"></div>
+    </div>
+
+    <div id="justifiedGrid"></div>
+
+    <div id="squareGrid">
+        <div class="square-grid"></div>
+    </div>
+
+    <script>
+        // Static image list from pics/ folder
+        const picsImages = [
+            'pics/Img00001.jpg', 'pics/Img00002.jpg', 'pics/Img00003.jpg', 'pics/Img00004.jpg',
+            'pics/Img00005.jpg', 'pics/Img00006.jpg', 'pics/Img00007.jpg', 'pics/Img00008.jpg',
+            'pics/Img00009.jpg', 'pics/Img00010.jpg', 'pics/Img00011.jpg', 'pics/Img00012.jpg',
+            'pics/Img00013.jpg', 'pics/Img00014.jpg', 'pics/Img00015.jpg', 'pics/Img00016.jpg',
+            'pics/Img00017.jpg', 'pics/Img00018.jpg', 'pics/Img00019.jpg', 'pics/Img00020.jpg',
+            'pics/Img00021.jpg', 'pics/Img00022.jpg', 'pics/Img00023.jpg', 'pics/Img00024.jpg',
+            'pics/Img00025.jpg', 'pics/Img00026.jpg', 'pics/Img00027.jpg', 'pics/Img00028.jpg',
+            'pics/Img00029.jpg', 'pics/Img00030.jpg', 'pics/Img00031.jpg', 'pics/Img00032.jpg',
+            'pics/Img00033.jpg', 'pics/Img00034.jpg', 'pics/Img00035.jpg', 'pics/Img00036.jpg',
+            'pics/Img00037.jpg', 'pics/Img00038.jpg', 'pics/Img00039.jpg', 'pics/Img00040.jpg',
+            'pics/Img00041.jpg', 'pics/Img00042.jpg', 'pics/Img00043.jpg', 'pics/Img00044.jpg',
+            'pics/Img00045.jpg', 'pics/Img00046.jpg', 'pics/Img00047.jpg', 'pics/Img00048.jpg',
+            'pics/Img00049.jpg', 'pics/Img00050.jpg', 'pics/Img00051.jpg', 'pics/Img00052.jpg',
+            'pics/Img00053.jpg', 'pics/Img00054.jpg', 'pics/Img00055.jpg', 'pics/Img00056.jpg',
+            'pics/Img00057.jpg', 'pics/Img00058.jpg', 'pics/Img00059.jpg', 'pics/Img00060.jpg',
+            'pics/Img00061.jpg', 'pics/Img00062.jpg', 'pics/Img00063.jpg', 'pics/Img00064.jpg',
+            'pics/Img00065.jpg', 'pics/Img00066.jpg', 'pics/Img00067.jpg', 'pics/Img00068.jpg'
+        ];
+
+        // Sample images from samples/ folder
+        const samplesImages = [
+            'samples/0001.jpg', 'samples/0002.jpg', 'samples/0003.jpg', 'samples/0004.jpg',
+            'samples/0005.jpg', 'samples/0006.jpg', 'samples/0007.jpg', 'samples/0008.jpg',
+            'samples/0009.jpg', 'samples/0010.jpg', 'samples/0011.jpg', 'samples/0012.jpg',
+            'samples/0013.jpg', 'samples/0014.jpg', 'samples/0015.jpg', 'samples/0016.jpg',
+            'samples/0017.jpg', 'samples/0018.jpg', 'samples/0019.jpg', 'samples/0020.jpg',
+            'samples/0021.jpg', 'samples/0022.jpg', 'samples/0023.jpg', 'samples/0024.jpg',
+            'samples/0025.jpg', 'samples/0026.jpg', 'samples/0027.jpg', 'samples/0028.jpg',
+            'samples/0029.jpg', 'samples/0030.jpg', 'samples/0031.jpg', 'samples/0032.jpg',
+            'samples/0033.jpg', 'samples/0034.jpg', 'samples/0035.jpg', 'samples/0036.jpg',
+            'samples/0037.jpg', 'samples/0038.jpg', 'samples/0039.jpg', 'samples/0040.jpg'
+        ];
+        
+        let currentSet = 'samples';
+        let currentLayout = 'masonry';
+        let currentImages = [...samplesImages];
+        let msnry = null;
+
+        function switchToSet(setName) {
+            if (setName === currentSet) return;
+            
+            currentSet = setName;
+            
+            // Update button states
+            document.getElementById('btnPics').classList.toggle('active', setName === 'pics');
+            document.getElementById('btnSamples').classList.toggle('active', setName === 'samples');
+            
+            // Switch image arrays
+            if (setName === 'pics') {
+                currentImages = [...picsImages];
+                document.getElementById('stats').textContent = `${picsImages.length} photos`;
+            } else {
+                currentImages = [...samplesImages];
+                document.getElementById('stats').textContent = `${samplesImages.length} samples`;
+            }
+            
+            // Re-render with current layout
+            renderCurrentLayout();
+        }
+
+        function switchLayout(layoutName) {
+            if (layoutName === currentLayout) return;
+            
+            currentLayout = layoutName;
+            
+            // Update button states
+            document.getElementById('btnMasonry').classList.toggle('active', layoutName === 'masonry');
+            document.getElementById('btnJustified').classList.toggle('active', layoutName === 'justified');
+            document.getElementById('btnSquare').classList.toggle('active', layoutName === 'square');
+            
+            // Re-render with new layout
+            renderCurrentLayout();
+        }
+
+        function renderCurrentLayout() {
+            if (currentLayout === 'masonry') {
+                renderMasonryGrid(currentImages);
+            } else if (currentLayout === 'justified') {
+                renderJustifiedGrid(currentImages);
+            } else {
+                renderSquareGrid(currentImages);
+            }
+        }
+
+        function initMasonry() {
+            const grid = document.getElementById('masonryGrid');
+            
+            // Destroy existing instance if it exists
+            if (msnry) {
+                msnry.destroy();
+            }
+            
+            // Initialize Masonry
+            msnry = new Masonry(grid, {
+                itemSelector: '.masonry-item',
+                columnWidth: '.grid-sizer',
+                percentPosition: true,
+                gutter: 15,
+                originLeft: true,
+                originTop: true,
+                horizontalOrder: true
+            });
+            
+            // Re-layout after all images load
+            imagesLoaded(grid, function() {
+                msnry.layout();
+            });
+        }
+
+        function renderMasonryGrid(images) {
+            // Hide other layouts, show masonry
+            document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('masonryGrid').style.display = 'block';
+            
+            // Clear justified gallery (only destroy if it was initialized)
+            const $justified = $('#justifiedGrid');
+            if ($justified.data('jg.controller')) {
+                $justified.justifiedGallery('destroy');
+            }
+            $justified.empty();
+            
+            const grid = document.getElementById('masonryGrid');
+            grid.innerHTML = '<div class="grid-sizer"></div>';
+            
+            images.forEach(imgSrc => {
+                const item = document.createElement('div');
+                item.className = 'masonry-item';
+                
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = imgSrc.split('/').pop();
+                
+                item.appendChild(img);
+                grid.appendChild(item);
+            });
+            
+            initMasonry();
+        }
+
+        function renderJustifiedGrid(images) {
+            // Hide other layouts, show justified
+            document.getElementById('masonryGrid').style.display = 'none';
+            document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('justifiedGrid').style.display = 'block';
+            
+            // Destroy masonry if it exists
+            if (msnry) {
+                msnry.destroy();
+                msnry = null;
+            }
+            
+            const grid = $('#justifiedGrid');
+            grid.empty();
+            
+            images.forEach(imgSrc => {
+                const link = $('<a>').attr('href', imgSrc);
+                const img = $('<img>').attr('src', imgSrc).attr('alt', imgSrc.split('/').pop());
+                link.append(img);
+                grid.append(link);
+            });
+            
+            // Initialize Justified Gallery
+            grid.justifiedGallery({
+                rowHeight: 230,
+                maxRowHeight: 300,
+                margins: 15,
+                border: 0,
+                lastRow: 'nojustify',
+                captions: false,
+                waitThumbnailsLoad: true
+            });
+        }
+
+        function renderSquareGrid(images) {
+            // Destroy masonry if it exists
+            if (msnry) {
+                msnry.destroy();
+                msnry = null;
+            }
+            
+            // Build the grid first (while still hidden)
+            const grid = document.querySelector('#squareGrid .square-grid');
+            grid.innerHTML = '';
+            
+            images.forEach(imgSrc => {
+                const item = document.createElement('div');
+                item.className = 'square-item';
+                
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = imgSrc.split('/').pop();
+                
+                item.appendChild(img);
+                grid.appendChild(item);
+            });
+            
+            // Now swap visibility
+            document.getElementById('masonryGrid').style.display = 'none';
+            document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('squareGrid').style.display = 'block';
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (currentLayout === 'masonry' && msnry) {
+                msnry.layout();
+            }
+            // Justified Gallery handles resize automatically
+        });
+
+        // Load images on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCurrentLayout();
+        });
+    </script>
+</body>
+</html>
