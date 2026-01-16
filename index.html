@@ -13,6 +13,12 @@
     <!-- Justified Gallery -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+    <!-- Flickr's justified-layout algorithm - load as module and expose globally -->
+    <script type="module">
+        import justifiedLayout from 'https://cdn.jsdelivr.net/npm/justified-layout@4.1.0/+esm';
+        window.justifiedLayout = justifiedLayout;
+        window.dispatchEvent(new Event('justifiedLayoutReady'));
+    </script>
     <style>
         * {
             margin: 0;
@@ -219,6 +225,55 @@
             }
         }
 
+        /* Fixed Grid Layout - square cells with contained images */
+        #fixedGrid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .fixed-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .fixed-item {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%; /* 1:1 aspect ratio */
+            background: #000;
+        }
+
+        .fixed-item img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Responsive fixed grid */
+        @media (max-width: 1200px) {
+            .fixed-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .fixed-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .fixed-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Overflow-height Layout - single column, full width */
         #overflowheightGrid {
             max-width: 1400px;
@@ -263,6 +318,27 @@
             max-height: calc(100vh - 30px);
             object-fit: contain;
         }
+
+        /* Flickr Grid Layout - uses justified-layout algorithm */
+        #flickrGrid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+            position: relative;
+        }
+
+        .flickr-item {
+            position: absolute;
+            left: 0;
+            top: 0;
+            will-change: transform;
+        }
+
+        .flickr-item img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -281,9 +357,11 @@
             <span class="control-label">Layout:</span>
             <button class="btn active" id="btnMasonry" onclick="switchLayout('masonry')">Masonry</button>
             <button class="btn" id="btnJustified" onclick="switchLayout('justified')">Justified</button>
+            <button class="btn" id="btnFlickrGrid" onclick="switchLayout('flickrgrid')">Flickr</button>
             <button class="btn" id="btnSquare" onclick="switchLayout('square')">Square</button>
-            <button class="btn" id="btnOverflowheight" onclick="switchLayout('overflowheight')">Overflow-height</button>
-            <button class="btn" id="btnFitscreen" onclick="switchLayout('fitscreen')">Fit-screen</button>
+            <button class="btn" id="btnFixed" onclick="switchLayout('fixed')">Fixed</button>
+            <button class="btn" id="btnOverflowheight" onclick="switchLayout('overflowheight')">Overflow</button>
+            <button class="btn" id="btnFitscreen" onclick="switchLayout('fitscreen')">Fit</button>
         </div>
     </div>
 
@@ -298,6 +376,12 @@
     <div id="squareGrid">
         <div class="square-grid"></div>
     </div>
+
+    <div id="fixedGrid">
+        <div class="fixed-grid"></div>
+    </div>
+
+    <div id="flickrGrid"></div>
 
     <div id="overflowheightGrid">
         <div class="overflowheight-grid"></div>
@@ -347,6 +431,9 @@
         let currentLayout = 'masonry';
         let currentImages = [...samplesImages];
         let msnry = null;
+        
+        // Cache for Flickr Grid - stores loaded image data to avoid reloading on resize
+        let flickrGridCache = { images: null, loadedImages: null, elements: null };
 
         function switchToSet(setName) {
             if (setName === currentSet) return;
@@ -366,6 +453,9 @@
                 document.getElementById('stats').textContent = `${samplesImages.length} samples`;
             }
             
+            // Clear flickr cache when changing image set
+            flickrGridCache = { images: null, loadedImages: null, elements: null };
+            
             // Re-render with current layout
             renderCurrentLayout();
         }
@@ -379,6 +469,7 @@
             document.getElementById('btnMasonry').classList.toggle('active', layoutName === 'masonry');
             document.getElementById('btnJustified').classList.toggle('active', layoutName === 'justified');
             document.getElementById('btnSquare').classList.toggle('active', layoutName === 'square');
+            document.getElementById('btnFlickrGrid').classList.toggle('active', layoutName === 'flickrgrid');
             document.getElementById('btnOverflowheight').classList.toggle('active', layoutName === 'overflowheight');
             document.getElementById('btnFitscreen').classList.toggle('active', layoutName === 'fitscreen');
             
@@ -393,6 +484,10 @@
                 renderJustifiedGrid(currentImages);
             } else if (currentLayout === 'square') {
                 renderSquareGrid(currentImages);
+            } else if (currentLayout === 'fixed') {
+                renderFixedGrid(currentImages);
+            } else if (currentLayout === 'flickrgrid') {
+                renderFlickrGrid(currentImages);
             } else if (currentLayout === 'overflowheight') {
                 renderOverflowheightGrid(currentImages);
             } else if (currentLayout === 'fitscreen') {
@@ -416,7 +511,7 @@
                 gutter: 15,
                 originLeft: true,
                 originTop: true,
-                horizontalOrder: true
+                horizontalOrder: false
             });
             
             // Re-layout after all images load
@@ -429,6 +524,8 @@
             // Hide other layouts, show masonry
             document.getElementById('justifiedGrid').style.display = 'none';
             document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fixedGrid').style.display = 'none';
+            document.getElementById('flickrGrid').style.display = 'none';
             document.getElementById('overflowheightGrid').style.display = 'none';
             document.getElementById('fitscreenGrid').style.display = 'none';
             document.getElementById('masonryGrid').style.display = 'block';
@@ -462,6 +559,8 @@
             // Hide other layouts, show justified
             document.getElementById('masonryGrid').style.display = 'none';
             document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fixedGrid').style.display = 'none';
+            document.getElementById('flickrGrid').style.display = 'none';
             document.getElementById('overflowheightGrid').style.display = 'none';
             document.getElementById('fitscreenGrid').style.display = 'none';
             document.getElementById('justifiedGrid').style.display = 'block';
@@ -520,9 +619,44 @@
             // Now swap visibility
             document.getElementById('masonryGrid').style.display = 'none';
             document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('fixedGrid').style.display = 'none';
+            document.getElementById('flickrGrid').style.display = 'none';
             document.getElementById('overflowheightGrid').style.display = 'none';
             document.getElementById('fitscreenGrid').style.display = 'none';
             document.getElementById('squareGrid').style.display = 'block';
+        }
+
+        function renderFixedGrid(images) {
+            // Destroy masonry if it exists
+            if (msnry) {
+                msnry.destroy();
+                msnry = null;
+            }
+            
+            // Build the grid first (while still hidden)
+            const grid = document.querySelector('#fixedGrid .fixed-grid');
+            grid.innerHTML = '';
+            
+            images.forEach(imgSrc => {
+                const item = document.createElement('div');
+                item.className = 'fixed-item';
+                
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = imgSrc.split('/').pop();
+                
+                item.appendChild(img);
+                grid.appendChild(item);
+            });
+            
+            // Now swap visibility
+            document.getElementById('masonryGrid').style.display = 'none';
+            document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('flickrGrid').style.display = 'none';
+            document.getElementById('overflowheightGrid').style.display = 'none';
+            document.getElementById('fitscreenGrid').style.display = 'none';
+            document.getElementById('fixedGrid').style.display = 'block';
         }
 
         function renderOverflowheightGrid(images) {
@@ -552,6 +686,8 @@
             document.getElementById('masonryGrid').style.display = 'none';
             document.getElementById('justifiedGrid').style.display = 'none';
             document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fixedGrid').style.display = 'none';
+            document.getElementById('flickrGrid').style.display = 'none';
             document.getElementById('fitscreenGrid').style.display = 'none';
             document.getElementById('overflowheightGrid').style.display = 'block';
         }
@@ -583,14 +719,148 @@
             document.getElementById('masonryGrid').style.display = 'none';
             document.getElementById('justifiedGrid').style.display = 'none';
             document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fixedGrid').style.display = 'none';
+            document.getElementById('flickrGrid').style.display = 'none';
             document.getElementById('overflowheightGrid').style.display = 'none';
             document.getElementById('fitscreenGrid').style.display = 'block';
         }
 
+        function renderFlickrGrid(images) {
+            // Destroy masonry if it exists
+            if (msnry) {
+                msnry.destroy();
+                msnry = null;
+            }
+            
+            const container = document.getElementById('flickrGrid');
+            
+            // Swap visibility first
+            document.getElementById('masonryGrid').style.display = 'none';
+            document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fixedGrid').style.display = 'none';
+            document.getElementById('overflowheightGrid').style.display = 'none';
+            document.getElementById('fitscreenGrid').style.display = 'none';
+            document.getElementById('flickrGrid').style.display = 'block';
+            
+            // Wait for justified-layout module to load if not ready
+            const doLayout = () => {
+                // Check if we can use cached data
+                const isSameImages = flickrGridCache.images === images && flickrGridCache.loadedImages;
+                
+                if (isSameImages) {
+                    // Use cached data - just relayout
+                    relayoutFlickrGrid();
+                    return;
+                }
+                
+                // Clear container for fresh render
+                container.innerHTML = '';
+                
+                // Load all images to get their dimensions
+                const imagePromises = images.map(src => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => resolve({ src, width: img.naturalWidth, height: img.naturalHeight });
+                        img.onerror = () => resolve({ src, width: 1, height: 1 }); // fallback
+                        img.src = src;
+                    });
+                });
+                
+                Promise.all(imagePromises).then(loadedImages => {
+                    // Cache the loaded image data
+                    flickrGridCache.images = images;
+                    flickrGridCache.loadedImages = loadedImages;
+                    flickrGridCache.elements = [];
+                    
+                    // Get container width
+                    const containerWidth = container.parentElement.clientWidth > 1400 ? 1400 : container.parentElement.clientWidth - 40;
+                    
+                    // Prepare aspect ratios for justified-layout
+                    const aspectRatios = loadedImages.map(img => img.width / img.height);
+                    
+                    // Run justified-layout algorithm
+                    const geometry = window.justifiedLayout(aspectRatios, {
+                        containerWidth: containerWidth,
+                        targetRowHeight: 230,
+                        boxSpacing: 15
+                    });
+                    
+                    // Set container height
+                    container.style.height = geometry.containerHeight + 'px';
+                    
+                    // Create positioned elements
+                    geometry.boxes.forEach((box, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'flickr-item';
+                        item.style.transform = `translate(${box.left}px, ${box.top}px)`;
+                        item.style.width = box.width + 'px';
+                        item.style.height = box.height + 'px';
+                        
+                        const img = document.createElement('img');
+                        img.src = loadedImages[index].src;
+                        img.alt = loadedImages[index].src.split('/').pop();
+                        
+                        item.appendChild(img);
+                        container.appendChild(item);
+                        
+                        // Cache element reference for fast relayout
+                        flickrGridCache.elements.push(item);
+                    });
+                });
+            };
+            
+            if (window.justifiedLayout) {
+                doLayout();
+            } else {
+                window.addEventListener('justifiedLayoutReady', doLayout, { once: true });
+            }
+        }
+        
+        // Fast relayout for Flickr Grid - reuses cached data and DOM elements
+        function relayoutFlickrGrid() {
+            if (!flickrGridCache.loadedImages || !flickrGridCache.elements) return;
+            
+            const container = document.getElementById('flickrGrid');
+            const loadedImages = flickrGridCache.loadedImages;
+            const elements = flickrGridCache.elements;
+            
+            // Get current container width
+            const containerWidth = container.parentElement.clientWidth > 1400 ? 1400 : container.parentElement.clientWidth - 40;
+            
+            // Prepare aspect ratios
+            const aspectRatios = loadedImages.map(img => img.width / img.height);
+            
+            // Recalculate layout
+            const geometry = window.justifiedLayout(aspectRatios, {
+                containerWidth: containerWidth,
+                targetRowHeight: 230,
+                boxSpacing: 15
+            });
+            
+            // Update container height
+            container.style.height = geometry.containerHeight + 'px';
+            
+            // Update element positions and sizes (no DOM creation)
+            geometry.boxes.forEach((box, index) => {
+                const item = elements[index];
+                if (item) {
+                    item.style.transform = `translate(${box.left}px, ${box.top}px)`;
+                    item.style.width = box.width + 'px';
+                    item.style.height = box.height + 'px';
+                }
+            });
+        }
+
         // Handle window resize
+        let resizeTimeout;
         window.addEventListener('resize', function() {
             if (currentLayout === 'masonry' && msnry) {
                 msnry.layout();
+            } else if (currentLayout === 'flickrgrid') {
+                // Debounce resize for flickr grid - use fast relayout
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => relayoutFlickrGrid(), 16); // ~60fps
             }
             // Justified Gallery handles resize automatically
         });
