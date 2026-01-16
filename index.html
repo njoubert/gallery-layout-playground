@@ -218,6 +218,76 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Fullwidth Layout - single column, full width */
+        #fullwidthGrid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .fullwidth-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .fullwidth-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Fullheight Layout - single column, max viewport height */
+        #fullheightGrid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .fullheight-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .fullheight-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullheight-item img {
+            max-width: 100%;
+            max-height: 100vh;
+            object-fit: contain;
+        }
+
+        /* Fullscreen Layout - each photo fits viewport */
+        #fullscreenGrid {
+            display: none;
+        }
+
+        .fullscreen-grid {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fullscreen-item {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .fullscreen-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
@@ -237,6 +307,9 @@
             <button class="btn active" id="btnMasonry" onclick="switchLayout('masonry')">Masonry</button>
             <button class="btn" id="btnJustified" onclick="switchLayout('justified')">Justified</button>
             <button class="btn" id="btnSquare" onclick="switchLayout('square')">Square</button>
+            <button class="btn" id="btnFullwidth" onclick="switchLayout('fullwidth')">Fullwidth</button>
+            <button class="btn" id="btnFullheight" onclick="switchLayout('fullheight')">Fullheight</button>
+            <button class="btn" id="btnFullscreen" onclick="switchLayout('fullscreen')">Fullscreen</button>
         </div>
     </div>
 
@@ -250,6 +323,18 @@
 
     <div id="squareGrid">
         <div class="square-grid"></div>
+    </div>
+
+    <div id="fullwidthGrid">
+        <div class="fullwidth-grid"></div>
+    </div>
+
+    <div id="fullheightGrid">
+        <div class="fullheight-grid"></div>
+    </div>
+
+    <div id="fullscreenGrid">
+        <div class="fullscreen-grid"></div>
     </div>
 
     <script>
@@ -324,6 +409,9 @@
             document.getElementById('btnMasonry').classList.toggle('active', layoutName === 'masonry');
             document.getElementById('btnJustified').classList.toggle('active', layoutName === 'justified');
             document.getElementById('btnSquare').classList.toggle('active', layoutName === 'square');
+            document.getElementById('btnFullwidth').classList.toggle('active', layoutName === 'fullwidth');
+            document.getElementById('btnFullheight').classList.toggle('active', layoutName === 'fullheight');
+            document.getElementById('btnFullscreen').classList.toggle('active', layoutName === 'fullscreen');
             
             // Re-render with new layout
             renderCurrentLayout();
@@ -334,8 +422,14 @@
                 renderMasonryGrid(currentImages);
             } else if (currentLayout === 'justified') {
                 renderJustifiedGrid(currentImages);
-            } else {
+            } else if (currentLayout === 'square') {
                 renderSquareGrid(currentImages);
+            } else if (currentLayout === 'fullwidth') {
+                renderFullwidthGrid(currentImages);
+            } else if (currentLayout === 'fullheight') {
+                renderFullheightGrid(currentImages);
+            } else {
+                renderFullscreenGrid(currentImages);
             }
         }
 
@@ -368,6 +462,9 @@
             // Hide other layouts, show masonry
             document.getElementById('justifiedGrid').style.display = 'none';
             document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fullwidthGrid').style.display = 'none';
+            document.getElementById('fullheightGrid').style.display = 'none';
+            document.getElementById('fullscreenGrid').style.display = 'none';
             document.getElementById('masonryGrid').style.display = 'block';
             
             // Clear justified gallery (only destroy if it was initialized)
@@ -399,6 +496,9 @@
             // Hide other layouts, show justified
             document.getElementById('masonryGrid').style.display = 'none';
             document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fullwidthGrid').style.display = 'none';
+            document.getElementById('fullheightGrid').style.display = 'none';
+            document.getElementById('fullscreenGrid').style.display = 'none';
             document.getElementById('justifiedGrid').style.display = 'block';
             
             // Destroy masonry if it exists
@@ -455,7 +555,106 @@
             // Now swap visibility
             document.getElementById('masonryGrid').style.display = 'none';
             document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('fullwidthGrid').style.display = 'none';
+            document.getElementById('fullheightGrid').style.display = 'none';
+            document.getElementById('fullscreenGrid').style.display = 'none';
             document.getElementById('squareGrid').style.display = 'block';
+        }
+
+        function renderFullwidthGrid(images) {
+            // Destroy masonry if it exists
+            if (msnry) {
+                msnry.destroy();
+                msnry = null;
+            }
+            
+            // Build the grid
+            const grid = document.querySelector('#fullwidthGrid .fullwidth-grid');
+            grid.innerHTML = '';
+            
+            images.forEach(imgSrc => {
+                const item = document.createElement('div');
+                item.className = 'fullwidth-item';
+                
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = imgSrc.split('/').pop();
+                
+                item.appendChild(img);
+                grid.appendChild(item);
+            });
+            
+            // Swap visibility
+            document.getElementById('masonryGrid').style.display = 'none';
+            document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fullheightGrid').style.display = 'none';
+            document.getElementById('fullscreenGrid').style.display = 'none';
+            document.getElementById('fullwidthGrid').style.display = 'block';
+        }
+
+        function renderFullheightGrid(images) {
+            // Destroy masonry if it exists
+            if (msnry) {
+                msnry.destroy();
+                msnry = null;
+            }
+            
+            // Build the grid
+            const grid = document.querySelector('#fullheightGrid .fullheight-grid');
+            grid.innerHTML = '';
+            
+            images.forEach(imgSrc => {
+                const item = document.createElement('div');
+                item.className = 'fullheight-item';
+                
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = imgSrc.split('/').pop();
+                
+                item.appendChild(img);
+                grid.appendChild(item);
+            });
+            
+            // Swap visibility
+            document.getElementById('masonryGrid').style.display = 'none';
+            document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fullwidthGrid').style.display = 'none';
+            document.getElementById('fullscreenGrid').style.display = 'none';
+            document.getElementById('fullheightGrid').style.display = 'block';
+        }
+
+        function renderFullscreenGrid(images) {
+            // Destroy masonry if it exists
+            if (msnry) {
+                msnry.destroy();
+                msnry = null;
+            }
+            
+            // Build the grid
+            const grid = document.querySelector('#fullscreenGrid .fullscreen-grid');
+            grid.innerHTML = '';
+            
+            images.forEach(imgSrc => {
+                const item = document.createElement('div');
+                item.className = 'fullscreen-item';
+                
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = imgSrc.split('/').pop();
+                
+                item.appendChild(img);
+                grid.appendChild(item);
+            });
+            
+            // Swap visibility
+            document.getElementById('masonryGrid').style.display = 'none';
+            document.getElementById('justifiedGrid').style.display = 'none';
+            document.getElementById('squareGrid').style.display = 'none';
+            document.getElementById('fullwidthGrid').style.display = 'none';
+            document.getElementById('fullheightGrid').style.display = 'none';
+            document.getElementById('fullscreenGrid').style.display = 'block';
         }
 
         // Handle window resize
