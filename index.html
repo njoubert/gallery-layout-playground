@@ -66,8 +66,7 @@
         }
 
         .vibe-grid {
-            max-width: 1400px;
-            margin: 0 auto;
+            width: 100%;
         }
 
         /* Grid sizer for responsive column width */
@@ -149,8 +148,6 @@
 
         /* Insta Grid Layout - CSS only */
         #instaGrid {
-            max-width: 1400px;
-            margin: 0 auto;
             display: none;
         }
 
@@ -207,8 +204,6 @@
 
         /* Big Layout - single column, full width */
         #bigGrid {
-            max-width: 1400px;
-            margin: 0 auto;
             display: none;
         }
 
@@ -226,8 +221,6 @@
 
         /* Fit Layout - single column, max viewport height */
         #fitGrid {
-            max-width: 1400px;
-            margin: 0 auto;
             display: none;
         }
 
@@ -252,8 +245,6 @@
 
         /* Arc Grid Layout - uses justified-layout algorithm */
         #arcGrid {
-            max-width: 1400px;
-            margin: 0 auto;
             display: none;
             position: relative;
         }
@@ -782,8 +773,8 @@
                     arcGridCache.captionHeights = captionHeights;
                     arcGridCache.elements = [];
                     
-                    // Get container width
-                    const containerWidth = container.parentElement.clientWidth > 1400 ? 1400 : container.parentElement.clientWidth - 40;
+                    // Get container width (full width minus body padding)
+                    const containerWidth = container.parentElement.clientWidth - 40;
                     
                     const TARGET_ROW_HEIGHT = 350;
                     
@@ -869,8 +860,8 @@
             const captionHeights = arcGridCache.captionHeights;
             const elements = arcGridCache.elements;
             
-            // Get current container width
-            const containerWidth = container.parentElement.clientWidth > 1400 ? 1400 : container.parentElement.clientWidth - 40;
+            // Get current container width (full width minus body padding)
+            const containerWidth = container.parentElement.clientWidth - 40;
             
             const TARGET_ROW_HEIGHT = 350;
             
