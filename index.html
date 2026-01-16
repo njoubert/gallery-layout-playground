@@ -4,15 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photo Masonry Grid</title>
-    <!-- jQuery (required for Justified Gallery) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <!-- Masonry.js -->
     <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
     <!-- imagesLoaded - ensures layout after images load -->
     <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
-    <!-- Justified Gallery -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/css/justifiedGallery.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
     <!-- Flickr's justified-layout algorithm - load as module and expose globally -->
     <script type="module">
         import justifiedLayout from 'https://cdn.jsdelivr.net/npm/justified-layout@4.1.0/+esm';
@@ -152,31 +147,6 @@
             margin: 0 10px;
         }
 
-        /* Justified Gallery container */
-        #justifiedGrid {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: none;
-        }
-
-        #justifiedGrid a {
-            display: inline-block;
-        }
-
-        #justifiedGrid img {
-            display: block;
-        }
-
-        /* Disable Justified Gallery fade animations */
-        .justified-gallery > a,
-        .justified-gallery > div,
-        .justified-gallery > a > img,
-        .justified-gallery > div > img {
-            opacity: 1 !important;
-            transition: none !important;
-            animation: none !important;
-        }
-
         /* Square Grid Layout - CSS only */
         #squareGrid {
             max-width: 1400px;
@@ -188,19 +158,21 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
+            align-items: start;
         }
 
         .square-item {
+            background: #222;
+        }
+
+        .square-item .image-wrapper {
             position: relative;
             width: 100%;
-            padding-bottom: 100%; /* 1:1 aspect ratio */
+            aspect-ratio: 1 / 1;
             overflow: hidden;
         }
 
         .square-item img {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -236,20 +208,23 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
+            align-items: start;
         }
 
         .fixed-item {
-            position: relative;
-            width: 100%;
-            padding-bottom: 100%; /* 1:1 aspect ratio */
             background: #000;
         }
 
+        .fixed-item .image-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .fixed-item img {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
@@ -304,18 +279,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: var(--fitscreen-gap, 15px);
         }
 
         .fitscreen-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
         }
 
         .fitscreen-item img {
             max-width: 100%;
-            max-height: calc(100vh - 30px);
+            max-height: var(--fitscreen-img-height, calc(100vh - 60px));
             object-fit: contain;
         }
 
@@ -332,12 +307,45 @@
             left: 0;
             top: 0;
             will-change: transform;
+            overflow: hidden;
+        }
+
+        .flickr-item .image-wrapper {
+            width: 100%;
+            overflow: hidden;
         }
 
         .flickr-item img {
             width: 100%;
             height: 100%;
             display: block;
+            object-fit: cover;
+        }
+
+        /* Caption styles - below image for most layouts */
+        .caption {
+            padding: 8px 12px;
+            background: #222;
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.3;
+            text-align: center;
+        }
+
+        /* Masonry items */
+        .masonry-item {
+            background: #222;
+            overflow: hidden;
+        }
+
+        .masonry-item img {
+            display: block;
+        }
+
+        /* Overflow/Fitscreen items */
+        .overflowheight-item,
+        .fitscreen-item {
+            background: #222;
         }
     </style>
 </head>
@@ -356,12 +364,11 @@
         <div class="control-group">
             <span class="control-label">Layout:</span>
             <button class="btn active" id="btnMasonry" onclick="switchLayout('masonry')">Masonry</button>
-            <button class="btn" id="btnJustified" onclick="switchLayout('justified')">Justified</button>
             <button class="btn" id="btnFlickrGrid" onclick="switchLayout('flickrgrid')">Flickr</button>
             <button class="btn" id="btnSquare" onclick="switchLayout('square')">Square</button>
             <button class="btn" id="btnFixed" onclick="switchLayout('fixed')">Fixed</button>
-            <button class="btn" id="btnOverflowheight" onclick="switchLayout('overflowheight')">Overflow</button>
             <button class="btn" id="btnFitscreen" onclick="switchLayout('fitscreen')">Fit</button>
+            <button class="btn" id="btnOverflowheight" onclick="switchLayout('overflowheight')">Overflow</button>
         </div>
     </div>
 
@@ -370,8 +377,6 @@
     <div class="masonry-grid" id="masonryGrid">
         <div class="grid-sizer"></div>
     </div>
-
-    <div id="justifiedGrid"></div>
 
     <div id="squareGrid">
         <div class="square-grid"></div>
@@ -413,18 +418,48 @@
             'pics/Img00065.jpg', 'pics/Img00066.jpg', 'pics/Img00067.jpg', 'pics/Img00068.jpg'
         ];
 
-        // Sample images from samples/ folder
+        // Sample images from samples/ folder - some with captions
         const samplesImages = [
-            'samples/0001.jpg', 'samples/0002.jpg', 'samples/0003.jpg', 'samples/0004.jpg',
-            'samples/0005.jpg', 'samples/0006.jpg', 'samples/0007.jpg', 'samples/0008.jpg',
-            'samples/0009.jpg', 'samples/0010.jpg', 'samples/0011.jpg', 'samples/0012.jpg',
-            'samples/0013.jpg', 'samples/0014.jpg', 'samples/0015.jpg', 'samples/0016.jpg',
-            'samples/0017.jpg', 'samples/0018.jpg', 'samples/0019.jpg', 'samples/0020.jpg',
-            'samples/0021.jpg', 'samples/0022.jpg', 'samples/0023.jpg', 'samples/0024.jpg',
-            'samples/0025.jpg', 'samples/0026.jpg', 'samples/0027.jpg', 'samples/0028.jpg',
-            'samples/0029.jpg', 'samples/0030.jpg', 'samples/0031.jpg', 'samples/0032.jpg',
-            'samples/0033.jpg', 'samples/0034.jpg', 'samples/0035.jpg', 'samples/0036.jpg',
-            'samples/0037.jpg', 'samples/0038.jpg', 'samples/0039.jpg', 'samples/0040.jpg'
+            { src: 'samples/0001.jpg', caption: 'Morning light through the window' },
+            'samples/0002.jpg',
+            { src: 'samples/0003.jpg', caption: 'A quiet moment' },
+            'samples/0004.jpg',
+            'samples/0005.jpg',
+            { src: 'samples/0006.jpg', caption: 'Reflections on water' },
+            'samples/0007.jpg',
+            'samples/0008.jpg',
+            { src: 'samples/0009.jpg', caption: 'The old oak tree' },
+            'samples/0010.jpg',
+            'samples/0011.jpg',
+            'samples/0012.jpg',
+            { src: 'samples/0013.jpg', caption: 'Summer afternoon' },
+            'samples/0014.jpg',
+            'samples/0015.jpg',
+            { src: 'samples/0016.jpg', caption: 'City lights at dusk' },
+            'samples/0017.jpg',
+            'samples/0018.jpg',
+            'samples/0019.jpg',
+            { src: 'samples/0020.jpg', caption: 'Patterns in nature' },
+            'samples/0021.jpg',
+            'samples/0022.jpg',
+            'samples/0023.jpg',
+            'samples/0024.jpg',
+            { src: 'samples/0025.jpg', caption: 'First snow of winter' },
+            'samples/0026.jpg',
+            'samples/0027.jpg',
+            'samples/0028.jpg',
+            'samples/0029.jpg',
+            { src: 'samples/0030.jpg', caption: 'Golden hour' },
+            'samples/0031.jpg',
+            'samples/0032.jpg',
+            'samples/0033.jpg',
+            'samples/0034.jpg',
+            'samples/0035.jpg',
+            { src: 'samples/0036.jpg', caption: 'Storm clouds gathering' },
+            'samples/0037.jpg',
+            'samples/0038.jpg',
+            'samples/0039.jpg',
+            { src: 'samples/0040.jpg', caption: 'End of the journey' }
         ];
         
         let currentSet = 'samples';
@@ -434,6 +469,89 @@
         
         // Cache for Flickr Grid - stores loaded image data to avoid reloading on resize
         let flickrGridCache = { images: null, loadedImages: null, elements: null };
+
+        // ============================================================
+        // Layout Registry - centralized layout configuration
+        // ============================================================
+        const layouts = {
+            masonry: {
+                gridId: 'masonryGrid',
+                buttonId: 'btnMasonry',
+                render: renderMasonryContent
+            },
+            square: {
+                gridId: 'squareGrid',
+                buttonId: 'btnSquare',
+                render: renderSquareContent
+            },
+            fixed: {
+                gridId: 'fixedGrid',
+                buttonId: 'btnFixed',
+                render: renderFixedContent
+            },
+            flickrgrid: {
+                gridId: 'flickrGrid',
+                buttonId: 'btnFlickrGrid',
+                render: renderFlickrContent
+            },
+            overflowheight: {
+                gridId: 'overflowheightGrid',
+                buttonId: 'btnOverflowheight',
+                render: renderOverflowheightContent
+            },
+            fitscreen: {
+                gridId: 'fitscreenGrid',
+                buttonId: 'btnFitscreen',
+                render: renderFitscreenContent
+            }
+        };
+
+        // ============================================================
+        // Helper Functions
+        // ============================================================
+        
+        // Helper: normalize item to { src, caption } format
+        function normalizeItem(item) {
+            if (typeof item === 'string') {
+                return { src: item, caption: null };
+            }
+            return { src: item.src, caption: item.caption || null };
+        }
+
+        // Helper: create caption element if caption exists
+        function createCaptionElement(caption) {
+            if (!caption) return null;
+            const captionEl = document.createElement('div');
+            captionEl.className = 'caption';
+            captionEl.textContent = caption;
+            return captionEl;
+        }
+
+        // Helper: destroy masonry instance if it exists
+        function teardownMasonry() {
+            if (msnry) {
+                msnry.destroy();
+                msnry = null;
+            }
+        }
+
+        // Helper: show only the specified grid, hide all others
+        function showOnly(gridId) {
+            Object.values(layouts).forEach(layout => {
+                document.getElementById(layout.gridId).style.display = (layout.gridId === gridId) ? 'block' : 'none';
+            });
+        }
+
+        // Helper: update button active states
+        function updateButtonStates(activeLayout) {
+            Object.entries(layouts).forEach(([name, config]) => {
+                document.getElementById(config.buttonId).classList.toggle('active', name === activeLayout);
+            });
+        }
+
+        // ============================================================
+        // Layout Switching
+        // ============================================================
 
         function switchToSet(setName) {
             if (setName === currentSet) return;
@@ -464,36 +582,25 @@
             if (layoutName === currentLayout) return;
             
             currentLayout = layoutName;
-            
-            // Update button states
-            document.getElementById('btnMasonry').classList.toggle('active', layoutName === 'masonry');
-            document.getElementById('btnJustified').classList.toggle('active', layoutName === 'justified');
-            document.getElementById('btnSquare').classList.toggle('active', layoutName === 'square');
-            document.getElementById('btnFlickrGrid').classList.toggle('active', layoutName === 'flickrgrid');
-            document.getElementById('btnOverflowheight').classList.toggle('active', layoutName === 'overflowheight');
-            document.getElementById('btnFitscreen').classList.toggle('active', layoutName === 'fitscreen');
-            
-            // Re-render with new layout
+            updateButtonStates(layoutName);
             renderCurrentLayout();
         }
 
         function renderCurrentLayout() {
-            if (currentLayout === 'masonry') {
-                renderMasonryGrid(currentImages);
-            } else if (currentLayout === 'justified') {
-                renderJustifiedGrid(currentImages);
-            } else if (currentLayout === 'square') {
-                renderSquareGrid(currentImages);
-            } else if (currentLayout === 'fixed') {
-                renderFixedGrid(currentImages);
-            } else if (currentLayout === 'flickrgrid') {
-                renderFlickrGrid(currentImages);
-            } else if (currentLayout === 'overflowheight') {
-                renderOverflowheightGrid(currentImages);
-            } else if (currentLayout === 'fitscreen') {
-                renderFitscreenGrid(currentImages);
+            const layout = layouts[currentLayout];
+            if (layout) {
+                // Teardown masonry before switching (unless we're switching TO masonry)
+                if (currentLayout !== 'masonry') {
+                    teardownMasonry();
+                }
+                showOnly(layout.gridId);
+                layout.render(currentImages);
             }
         }
+
+        // ============================================================
+        // Masonry Layout
+        // ============================================================
 
         function initMasonry() {
             const grid = document.getElementById('masonryGrid');
@@ -520,228 +627,159 @@
             });
         }
 
-        function renderMasonryGrid(images) {
-            // Hide other layouts, show masonry
-            document.getElementById('justifiedGrid').style.display = 'none';
-            document.getElementById('squareGrid').style.display = 'none';
-            document.getElementById('fixedGrid').style.display = 'none';
-            document.getElementById('flickrGrid').style.display = 'none';
-            document.getElementById('overflowheightGrid').style.display = 'none';
-            document.getElementById('fitscreenGrid').style.display = 'none';
-            document.getElementById('masonryGrid').style.display = 'block';
-            
-            // Clear justified gallery (only destroy if it was initialized)
-            const $justified = $('#justifiedGrid');
-            if ($justified.data('jg.controller')) {
-                $justified.justifiedGallery('destroy');
-            }
-            $justified.empty();
-            
+        function renderMasonryContent(images) {
             const grid = document.getElementById('masonryGrid');
             grid.innerHTML = '<div class="grid-sizer"></div>';
             
-            images.forEach(imgSrc => {
-                const item = document.createElement('div');
-                item.className = 'masonry-item';
+            images.forEach(item => {
+                const { src, caption } = normalizeItem(item);
+                const itemEl = document.createElement('div');
+                itemEl.className = 'masonry-item';
                 
                 const img = document.createElement('img');
-                img.src = imgSrc;
-                img.alt = imgSrc.split('/').pop();
+                img.src = src;
+                img.alt = src.split('/').pop();
                 
-                item.appendChild(img);
-                grid.appendChild(item);
+                itemEl.appendChild(img);
+                
+                const captionEl = createCaptionElement(caption);
+                if (captionEl) itemEl.appendChild(captionEl);
+                
+                grid.appendChild(itemEl);
             });
             
             initMasonry();
         }
 
-        function renderJustifiedGrid(images) {
-            // Hide other layouts, show justified
-            document.getElementById('masonryGrid').style.display = 'none';
-            document.getElementById('squareGrid').style.display = 'none';
-            document.getElementById('fixedGrid').style.display = 'none';
-            document.getElementById('flickrGrid').style.display = 'none';
-            document.getElementById('overflowheightGrid').style.display = 'none';
-            document.getElementById('fitscreenGrid').style.display = 'none';
-            document.getElementById('justifiedGrid').style.display = 'block';
-            
-            // Destroy masonry if it exists
-            if (msnry) {
-                msnry.destroy();
-                msnry = null;
-            }
-            
-            const grid = $('#justifiedGrid');
-            grid.empty();
-            
-            images.forEach(imgSrc => {
-                const link = $('<a>').attr('href', imgSrc);
-                const img = $('<img>').attr('src', imgSrc).attr('alt', imgSrc.split('/').pop());
-                link.append(img);
-                grid.append(link);
-            });
-            
-            // Initialize Justified Gallery
-            grid.justifiedGallery({
-                rowHeight: 230,
-                maxRowHeight: 300,
-                margins: 15,
-                border: 0,
-                lastRow: 'nojustify',
-                captions: false,
-                waitThumbnailsLoad: true
-            });
-        }
-
-        function renderSquareGrid(images) {
-            // Destroy masonry if it exists
-            if (msnry) {
-                msnry.destroy();
-                msnry = null;
-            }
-            
-            // Build the grid first (while still hidden)
+        // ============================================================
+        // Square Grid Layout
+        // ============================================================
+        
+        function renderSquareContent(images) {
             const grid = document.querySelector('#squareGrid .square-grid');
             grid.innerHTML = '';
             
-            images.forEach(imgSrc => {
-                const item = document.createElement('div');
-                item.className = 'square-item';
+            images.forEach(item => {
+                const { src, caption } = normalizeItem(item);
+                const itemEl = document.createElement('div');
+                itemEl.className = 'square-item';
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-wrapper';
                 
                 const img = document.createElement('img');
-                img.src = imgSrc;
-                img.alt = imgSrc.split('/').pop();
+                img.src = src;
+                img.alt = src.split('/').pop();
                 
-                item.appendChild(img);
-                grid.appendChild(item);
+                wrapper.appendChild(img);
+                itemEl.appendChild(wrapper);
+                
+                const captionEl = createCaptionElement(caption);
+                if (captionEl) itemEl.appendChild(captionEl);
+                
+                grid.appendChild(itemEl);
             });
-            
-            // Now swap visibility
-            document.getElementById('masonryGrid').style.display = 'none';
-            document.getElementById('justifiedGrid').style.display = 'none';
-            document.getElementById('fixedGrid').style.display = 'none';
-            document.getElementById('flickrGrid').style.display = 'none';
-            document.getElementById('overflowheightGrid').style.display = 'none';
-            document.getElementById('fitscreenGrid').style.display = 'none';
-            document.getElementById('squareGrid').style.display = 'block';
         }
 
-        function renderFixedGrid(images) {
-            // Destroy masonry if it exists
-            if (msnry) {
-                msnry.destroy();
-                msnry = null;
-            }
-            
-            // Build the grid first (while still hidden)
+        // ============================================================
+        // Fixed Grid Layout
+        // ============================================================
+        
+        function renderFixedContent(images) {
             const grid = document.querySelector('#fixedGrid .fixed-grid');
             grid.innerHTML = '';
             
-            images.forEach(imgSrc => {
-                const item = document.createElement('div');
-                item.className = 'fixed-item';
+            images.forEach(item => {
+                const { src, caption } = normalizeItem(item);
+                const itemEl = document.createElement('div');
+                itemEl.className = 'fixed-item';
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-wrapper';
                 
                 const img = document.createElement('img');
-                img.src = imgSrc;
-                img.alt = imgSrc.split('/').pop();
+                img.src = src;
+                img.alt = src.split('/').pop();
                 
-                item.appendChild(img);
-                grid.appendChild(item);
+                wrapper.appendChild(img);
+                itemEl.appendChild(wrapper);
+                
+                const captionEl = createCaptionElement(caption);
+                if (captionEl) itemEl.appendChild(captionEl);
+                
+                grid.appendChild(itemEl);
             });
-            
-            // Now swap visibility
-            document.getElementById('masonryGrid').style.display = 'none';
-            document.getElementById('justifiedGrid').style.display = 'none';
-            document.getElementById('squareGrid').style.display = 'none';
-            document.getElementById('flickrGrid').style.display = 'none';
-            document.getElementById('overflowheightGrid').style.display = 'none';
-            document.getElementById('fitscreenGrid').style.display = 'none';
-            document.getElementById('fixedGrid').style.display = 'block';
         }
 
-        function renderOverflowheightGrid(images) {
-            // Destroy masonry if it exists
-            if (msnry) {
-                msnry.destroy();
-                msnry = null;
-            }
-            
-            // Build the grid
+        // ============================================================
+        // Overflow Height Layout
+        // ============================================================
+        
+        function renderOverflowheightContent(images) {
             const grid = document.querySelector('#overflowheightGrid .overflowheight-grid');
             grid.innerHTML = '';
             
-            images.forEach(imgSrc => {
-                const item = document.createElement('div');
-                item.className = 'overflowheight-item';
+            images.forEach(item => {
+                const { src, caption } = normalizeItem(item);
+                const itemEl = document.createElement('div');
+                itemEl.className = 'overflowheight-item';
                 
                 const img = document.createElement('img');
-                img.src = imgSrc;
-                img.alt = imgSrc.split('/').pop();
+                img.src = src;
+                img.alt = src.split('/').pop();
                 
-                item.appendChild(img);
-                grid.appendChild(item);
+                itemEl.appendChild(img);
+                
+                const captionEl = createCaptionElement(caption);
+                if (captionEl) itemEl.appendChild(captionEl);
+                
+                grid.appendChild(itemEl);
             });
-            
-            // Swap visibility
-            document.getElementById('masonryGrid').style.display = 'none';
-            document.getElementById('justifiedGrid').style.display = 'none';
-            document.getElementById('squareGrid').style.display = 'none';
-            document.getElementById('fixedGrid').style.display = 'none';
-            document.getElementById('flickrGrid').style.display = 'none';
-            document.getElementById('fitscreenGrid').style.display = 'none';
-            document.getElementById('overflowheightGrid').style.display = 'block';
         }
 
-        function renderFitscreenGrid(images) {
-            // Destroy masonry if it exists
-            if (msnry) {
-                msnry.destroy();
-                msnry = null;
-            }
-            
-            // Build the grid
+        // ============================================================
+        // Fitscreen Layout
+        // ============================================================
+
+        function renderFitscreenContent(images) {
             const grid = document.querySelector('#fitscreenGrid .fitscreen-grid');
             grid.innerHTML = '';
             
-            images.forEach(imgSrc => {
-                const item = document.createElement('div');
-                item.className = 'fitscreen-item';
+            // Calculate available height for image
+            // Viewport height - gap (between items) - caption height (padding + text)
+            const gap = 15;
+            const captionHeight = 36; // 8px padding top + 8px padding bottom + ~18px text (14px * 1.3)
+            const viewportHeight = window.innerHeight;
+            const imageMaxHeight = viewportHeight - gap - captionHeight;
+            
+            // Set CSS custom properties
+            grid.style.setProperty('--fitscreen-gap', gap + 'px');
+            grid.style.setProperty('--fitscreen-img-height', imageMaxHeight + 'px');
+            
+            images.forEach(item => {
+                const { src, caption } = normalizeItem(item);
+                const itemEl = document.createElement('div');
+                itemEl.className = 'fitscreen-item';
                 
                 const img = document.createElement('img');
-                img.src = imgSrc;
-                img.alt = imgSrc.split('/').pop();
+                img.src = src;
+                img.alt = src.split('/').pop();
                 
-                item.appendChild(img);
-                grid.appendChild(item);
+                itemEl.appendChild(img);
+                
+                const captionEl = createCaptionElement(caption);
+                if (captionEl) itemEl.appendChild(captionEl);
+                
+                grid.appendChild(itemEl);
             });
-            
-            // Swap visibility
-            document.getElementById('masonryGrid').style.display = 'none';
-            document.getElementById('justifiedGrid').style.display = 'none';
-            document.getElementById('squareGrid').style.display = 'none';
-            document.getElementById('fixedGrid').style.display = 'none';
-            document.getElementById('flickrGrid').style.display = 'none';
-            document.getElementById('overflowheightGrid').style.display = 'none';
-            document.getElementById('fitscreenGrid').style.display = 'block';
         }
 
-        function renderFlickrGrid(images) {
-            // Destroy masonry if it exists
-            if (msnry) {
-                msnry.destroy();
-                msnry = null;
-            }
-            
+        // ============================================================
+        // Flickr Grid Layout (justified-layout algorithm)
+        // ============================================================
+
+        function renderFlickrContent(images) {
             const container = document.getElementById('flickrGrid');
-            
-            // Swap visibility first
-            document.getElementById('masonryGrid').style.display = 'none';
-            document.getElementById('justifiedGrid').style.display = 'none';
-            document.getElementById('squareGrid').style.display = 'none';
-            document.getElementById('fixedGrid').style.display = 'none';
-            document.getElementById('overflowheightGrid').style.display = 'none';
-            document.getElementById('fitscreenGrid').style.display = 'none';
-            document.getElementById('flickrGrid').style.display = 'block';
             
             // Wait for justified-layout module to load if not ready
             const doLayout = () => {
@@ -758,11 +796,12 @@
                 container.innerHTML = '';
                 
                 // Load all images to get their dimensions
-                const imagePromises = images.map(src => {
+                const imagePromises = images.map(item => {
+                    const { src, caption } = normalizeItem(item);
                     return new Promise((resolve) => {
                         const img = new Image();
-                        img.onload = () => resolve({ src, width: img.naturalWidth, height: img.naturalHeight });
-                        img.onerror = () => resolve({ src, width: 1, height: 1 }); // fallback
+                        img.onload = () => resolve({ src, caption, width: img.naturalWidth, height: img.naturalHeight });
+                        img.onerror = () => resolve({ src, caption, width: 1, height: 1 }); // fallback
                         img.src = src;
                     });
                 });
@@ -776,6 +815,9 @@
                     // Get container width
                     const containerWidth = container.parentElement.clientWidth > 1400 ? 1400 : container.parentElement.clientWidth - 40;
                     
+                    // Caption height constant (padding + line height + some buffer)
+                    const CAPTION_HEIGHT = 35;
+                    
                     // Prepare aspect ratios for justified-layout
                     const aspectRatios = loadedImages.map(img => img.width / img.height);
                     
@@ -786,22 +828,64 @@
                         boxSpacing: 15
                     });
                     
-                    // Set container height
-                    container.style.height = geometry.containerHeight + 'px';
+                    // Calculate total height accounting for captions
+                    // We need to track row positions and add caption height where needed
+                    let extraHeight = 0;
+                    let currentRowTop = -1;
+                    let rowHasCaption = false;
                     
-                    // Create positioned elements
+                    // First pass: determine which rows have captions and calculate extra height
+                    const rowCaptionOffsets = new Map(); // Maps row top position to extra offset
+                    let cumulativeOffset = 0;
+                    
                     geometry.boxes.forEach((box, index) => {
+                        if (box.top !== currentRowTop) {
+                            // New row - add offset from previous row's caption if any
+                            if (rowHasCaption) {
+                                cumulativeOffset += CAPTION_HEIGHT;
+                            }
+                            currentRowTop = box.top;
+                            rowHasCaption = loadedImages[index].caption ? true : false;
+                            rowCaptionOffsets.set(box.top, cumulativeOffset);
+                        } else {
+                            // Same row - check if this item has caption
+                            if (loadedImages[index].caption) {
+                                rowHasCaption = true;
+                            }
+                        }
+                    });
+                    // Add final row's caption height
+                    if (rowHasCaption) {
+                        cumulativeOffset += CAPTION_HEIGHT;
+                    }
+                    
+                    // Set container height with caption offsets
+                    container.style.height = (geometry.containerHeight + cumulativeOffset) + 'px';
+                    
+                    // Create positioned elements with adjusted positions
+                    geometry.boxes.forEach((box, index) => {
+                        const offset = rowCaptionOffsets.get(box.top) || 0;
                         const item = document.createElement('div');
                         item.className = 'flickr-item';
-                        item.style.transform = `translate(${box.left}px, ${box.top}px)`;
+                        item.style.transform = `translate(${box.left}px, ${box.top + offset}px)`;
                         item.style.width = box.width + 'px';
-                        item.style.height = box.height + 'px';
+                        
+                        // Create image wrapper
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'image-wrapper';
+                        wrapper.style.height = box.height + 'px';
                         
                         const img = document.createElement('img');
                         img.src = loadedImages[index].src;
                         img.alt = loadedImages[index].src.split('/').pop();
                         
-                        item.appendChild(img);
+                        wrapper.appendChild(img);
+                        item.appendChild(wrapper);
+                        
+                        // Add caption if present
+                        const captionEl = createCaptionElement(loadedImages[index].caption);
+                        if (captionEl) item.appendChild(captionEl);
+                        
                         container.appendChild(item);
                         
                         // Cache element reference for fast relayout
@@ -828,6 +912,9 @@
             // Get current container width
             const containerWidth = container.parentElement.clientWidth > 1400 ? 1400 : container.parentElement.clientWidth - 40;
             
+            // Caption height constant
+            const CAPTION_HEIGHT = 35;
+            
             // Prepare aspect ratios
             const aspectRatios = loadedImages.map(img => img.width / img.height);
             
@@ -838,16 +925,45 @@
                 boxSpacing: 15
             });
             
+            // Calculate row caption offsets (same logic as initial render)
+            let currentRowTop = -1;
+            let rowHasCaption = false;
+            const rowCaptionOffsets = new Map();
+            let cumulativeOffset = 0;
+            
+            geometry.boxes.forEach((box, index) => {
+                if (box.top !== currentRowTop) {
+                    if (rowHasCaption) {
+                        cumulativeOffset += CAPTION_HEIGHT;
+                    }
+                    currentRowTop = box.top;
+                    rowHasCaption = loadedImages[index].caption ? true : false;
+                    rowCaptionOffsets.set(box.top, cumulativeOffset);
+                } else {
+                    if (loadedImages[index].caption) {
+                        rowHasCaption = true;
+                    }
+                }
+            });
+            if (rowHasCaption) {
+                cumulativeOffset += CAPTION_HEIGHT;
+            }
+            
             // Update container height
-            container.style.height = geometry.containerHeight + 'px';
+            container.style.height = (geometry.containerHeight + cumulativeOffset) + 'px';
             
             // Update element positions and sizes (no DOM creation)
             geometry.boxes.forEach((box, index) => {
+                const offset = rowCaptionOffsets.get(box.top) || 0;
                 const item = elements[index];
                 if (item) {
-                    item.style.transform = `translate(${box.left}px, ${box.top}px)`;
+                    item.style.transform = `translate(${box.left}px, ${box.top + offset}px)`;
                     item.style.width = box.width + 'px';
-                    item.style.height = box.height + 'px';
+                    // Update wrapper height
+                    const wrapper = item.querySelector('.image-wrapper');
+                    if (wrapper) {
+                        wrapper.style.height = box.height + 'px';
+                    }
                 }
             });
         }
@@ -861,8 +977,19 @@
                 // Debounce resize for flickr grid - use fast relayout
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(() => relayoutFlickrGrid(), 16); // ~60fps
+            } else if (currentLayout === 'fitscreen') {
+                // Recalculate fitscreen image height on resize
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    const grid = document.querySelector('#fitscreenGrid .fitscreen-grid');
+                    if (grid) {
+                        const gap = 15;
+                        const captionHeight = 36;
+                        const imageMaxHeight = window.innerHeight - gap - captionHeight;
+                        grid.style.setProperty('--fitscreen-img-height', imageMaxHeight + 'px');
+                    }
+                }, 16);
             }
-            // Justified Gallery handles resize automatically
         });
 
         // Load images on page load
